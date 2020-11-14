@@ -12,6 +12,11 @@ class Scene2 extends Phaser.Scene {
         this.ship2 = this.add.sprite(config.width / 2, config.height / 2, "ship2");
         this.ship3 = this.add.sprite(config.width / 2 + 50, config.height / 2, "ship3");
 
+        this.enemies = this.physics.add.group();
+        this.enemies.add(this.ship1);
+        this.enemies.add(this.ship2);
+        this.enemies.add(this.ship3);
+
         this.ship1.play("ship1_anim");
         this.ship2.play("ship2_anim");
         this.ship3.play("ship3_anim");
@@ -21,11 +26,6 @@ class Scene2 extends Phaser.Scene {
         this.ship3.setInteractive();
 
         this.input.on('gameobjectdown', this.destroyShip, this);
-
-        this.add.text(20, 20, "Playing game", {
-            font: "25px Arial",
-            fill: "yellow"
-        });
 
         this.physics.world.setBoundsCollision();
 
@@ -56,13 +56,60 @@ class Scene2 extends Phaser.Scene {
 
         this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
+        this.projectiles = this.add.group();
+
+        this.physics.add.collider(this.projectiles, this.powerUps, function(projectiles, powerUp) {
+            projectiles.destroy();
+        });
+
+        this.physics.add.overlap(this.player, this.powerUps, this.pickPowerUp, null, this);
+        this.physics.add.overlap(this.player, this.enemies, this.hurtPlayer, null, this);
+        this.physics.add.overlap(this.projectiles, this.enemies, this.hitEnemy, null, this);
+
+        var graphics = this.add.graphics();
+        graphics.fillStyle(0x000000, 1);
+        graphics.beginPath();
+        graphics.moveTo(0, 0);
+        graphics.lineTo(config.width, 0);
+        graphics.lineTo(config.width, 20);
+        graphics.lineTo(0, 20);
+        graphics.lineTo(0, 0);
+        graphics.closePath();
+        graphics.fillPath();
+        this.scoreLable = this.add.bitmapText(10, 5, "pixelFont", "SCORE", 16);
+        this.score = 0;
     }
+
+    pickPowerUp(player, powerUp) {
+        powerUp.disableBody(true, true);
+    };
+
+    hurtPlayer(player, enemy) {
+        if (enemy.texture.key != "explosion") {
+            player.setTexture("explosion");
+            player.play("explode");
+            player.on('animationcomplete', () => {
+                player.setTexture("player");
+                player.x = config.width / 2 - 8;
+                player.y = config.height - 64;
+            });
+            this.resetShipPos(enemy);
+        }
+        //add lives and reset points also add powerups
+    };
+
+    hitEnemy(projectile, enemy) {
+        projectile.destroy();
+        this.resetShipPos(enemy);
+        this.score += 1;
+        this.scoreLable.text = "SCORE: " + this.zeroPad(this.score, 6);
+    };
 
     update() {
 
-        this.moveShip(this.ship1, 1);
-        this.moveShip(this.ship2, 2);
-        this.moveShip(this.ship3, 3);
+        this.moveShip(this.ship1, gameSettings.ship1Speed);
+        this.moveShip(this.ship2, gameSettings.ship2Speed);
+        this.moveShip(this.ship3, gameSettings.ship3Speed);
 
         this.background.tilePositionY -= 0.5;
 
@@ -72,19 +119,31 @@ class Scene2 extends Phaser.Scene {
             this.shootBeam();
         }
 
+        for (var i = 0; i < this.projectiles.getChildren().length; i++) {
+            var beam = this.projectiles.getChildren()[i];
+            beam.update();
+        }
     }
 
     moveShip(ship, speed) {
         ship.y += speed;
         if (ship.y > config.height) {
-            this.resetShipPos(ship);
+            ship.y = 0;
+            ship.x = Phaser.Math.Between(0, config.width);
         }
     }
 
     resetShipPos(ship) {
-        ship.y = 0;
-        var randomX = Phaser.Math.Between(0, config.width);
-        ship.x = randomX;
+        let randomint = Phaser.Math.Between(0, 2);
+        let texture = "ship3";
+        if (randomint == 0) { texture = "ship" } else if (randomint == 1) { texture = "ship2" }
+        ship.setTexture("explosion");
+        ship.play("explode");
+        ship.on('animationcomplete', () => {
+            ship.setTexture(texture);
+            ship.y = 0;
+            ship.x = Phaser.Math.Between(0, config.width);
+        });
     }
 
     destroyShip(pointer, gameObject) {
@@ -130,6 +189,14 @@ class Scene2 extends Phaser.Scene {
 
     shootBeam() {
         var beam = new Beam(this);
+    }
+
+    zeroPad(number, size) {
+        var stringNumber = String(number);
+        while (stringNumber.length < (size || 2)) {
+            stringNumber = "0" + stringNumber;
+        }
+        return stringNumber;
     }
 
 }

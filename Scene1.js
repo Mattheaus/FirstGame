@@ -33,12 +33,12 @@ class Scene1 extends Phaser.Scene {
             frameWidth: 16,
             frameHeight: 16
         });
+        this.load.bitmapFont("pixelFont", "assets/font/font.png", "assets/font/font.xml");
     }
 
     create() {
         this.add.text(20, 20, "Loading game...");
         this.scene.start("playGame");
-
         this.anims.create({
             key: "ship1_anim",
             frames: this.anims.generateFrameNumbers("ship"),
@@ -62,8 +62,7 @@ class Scene1 extends Phaser.Scene {
             key: "explode",
             frames: this.anims.generateFrameNumbers("explosion"),
             frameRate: 20,
-            repeat: 0,
-            hideOnComplete: true
+            repeat: 0
         });
 
         this.anims.create({
