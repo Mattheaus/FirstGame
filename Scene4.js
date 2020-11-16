@@ -1,8 +1,10 @@
-class Scene2 extends Phaser.Scene {
+class Scene4 extends Phaser.Scene {
     constructor() {
-        super("readyToPlay");
+        super("GameOver");
     }
-
+    init(data) {
+        this.score = data.score;
+    }
     create() {
 
         this.background = this.add.tileSprite(0, 0, config.width, config.height, "background");
@@ -37,27 +39,35 @@ class Scene2 extends Phaser.Scene {
         graphics.lineTo(0, 0);
         graphics.closePath();
         graphics.fillPath();
-        this.score = 0;
-        this.scoreLable = this.add.bitmapText(10, 5, "pixelFont", "SCORE: 000000", 16);
+
+        this.scoreLable = this.add.bitmapText(10, 5, "pixelFont", "SCORE: " + this.zeroPad(this.score, 6), 16);
         this.livesLable = this.add.bitmapText(config.width - 100, 5, "pixelFont", "Lives: ", 16);
 
-        this.live1 = this.add.image(config.width - 60, 10, "live");
-        this.live2 = this.add.image(config.width - 48, 10, "live");
-        this.live3 = this.add.image(config.width - 36, 10, "live");
+        this.live1 = this.add.image(config.width - 60, 10, "live").setAlpha(0.15);
+        this.live2 = this.add.image(config.width - 48, 10, "live").setAlpha(0.15);
+        this.live3 = this.add.image(config.width - 36, 10, "live").setAlpha(0.15);
 
         let overlay = this.add.renderTexture(0, 0, config.width, config.height);
         overlay.fill(0x000000);
         overlay.setAlpha(0.5);
 
-        this.next = this.add.bitmapText(config.width * 1 / 4, config.height / 2, "pixelFont", "PRESS SPACE TO START", 16);
+        this.youDied = this.add.bitmapText(config.width * 1 / 4 + 25, config.height / 2 - 40, "pixelFont", "You DIED", 24);
+        this.finalScore = this.add.bitmapText(config.width * 1 / 4 + 5, config.height / 2, "pixelFont", "FINAL SCORE: " + this.zeroPad(this.score, 6), 16);
+        this.next = this.add.bitmapText(config.width * 1 / 4 - 15, config.height / 2 + 18, "pixelFont", "PRESS SPACE TO CONTINUE...", 16);
     }
 
     update() {
         if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
-            this.scene.start('playGame');
+            this.scene.start('readyToPlay');
         }
     }
 
-
+    zeroPad(number, size) {
+        var stringNumber = String(number);
+        while (stringNumber.length < (size || 2)) {
+            stringNumber = "0" + stringNumber;
+        }
+        return stringNumber;
+    }
 
 }
