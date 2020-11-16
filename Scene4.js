@@ -25,7 +25,7 @@ class Scene4 extends Phaser.Scene {
 
         this.cursorKeys = this.input.keyboard.createCursorKeys();
 
-        this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.shift = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
 
         this.projectiles = this.add.group();
 
@@ -53,11 +53,11 @@ class Scene4 extends Phaser.Scene {
 
         this.youDied = this.add.bitmapText(config.width * 1 / 4 + 25, config.height / 2 - 40, "pixelFont", "You DIED", 24);
         this.finalScore = this.add.bitmapText(config.width * 1 / 4 + 5, config.height / 2, "pixelFont", "FINAL SCORE: " + this.zeroPad(this.score, 6), 16);
-        this.next = this.add.bitmapText(config.width * 1 / 4 - 15, config.height / 2 + 18, "pixelFont", "PRESS SPACE TO CONTINUE...", 16);
+        this.next = this.add.bitmapText(config.width * 1 / 4 - 15, config.height / 2 + 18, "pixelFont", "PRESS SHIFT TO CONTINUE...", 16);
     }
 
     update() {
-        if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
+        if (Phaser.Input.Keyboard.JustDown(this.shift)) {
             this.scene.start('readyToPlay');
         }
     }

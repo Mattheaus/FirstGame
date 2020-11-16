@@ -3,7 +3,7 @@ var gameSettings = {
     ship1Speed: 1,
     ship2Speed: 2,
     ship3Speed: 3,
-    maxObjects: 4
+    maxObjects: 2
 }
 
 var config = {

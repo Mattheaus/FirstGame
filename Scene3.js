@@ -26,7 +26,7 @@ class Scene3 extends Phaser.Scene {
         this.powerUps = this.physics.add.group();
 
         for (var i = 0; i <= gameSettings.maxObjects; i++) {
-            var powerUp = this.physics.add.sprite(16, 16, "power-up");
+            var powerUp = this.physics.add.sprite(16, 16, "power-up").setScale(.75);
             this.powerUps.add(powerUp);
             powerUp.setRandomPosition(0, 0, game.config.width, game.config.height * 1 / 4);
 
@@ -88,28 +88,34 @@ class Scene3 extends Phaser.Scene {
                 gameSettings.ship1Speed = 2;
                 gameSettings.ship2Speed = 4;
                 gameSettings.ship3Speed = 6;
-                var timer = this.time.delayedCall(7000, this.resetPlayer, [powerUp], this);
+                var timer = this.time.delayedCall(7000, this.resetPlayer, [false, powerUp], this);
             } else {
                 player.setTexture("redPlayer");
                 player.play("rPowerUp");
                 gameSettings.ship1Speed = 0.5;
                 gameSettings.ship2Speed = 0.75;
                 gameSettings.ship3Speed = 1;
-                var timer = this.time.delayedCall(10000, this.resetPlayer, [powerUp], this);
+                var timer = this.time.delayedCall(10000, this.resetPlayer, [false, powerUp], this);
             }
         }
     };
 
-    resetPlayer(powerUp) {
+    resetPlayer(died, powerUp) {
         gameSettings.ship1Speed = 1;
         gameSettings.ship2Speed = 2;
         gameSettings.ship3Speed = 3;
-        this.player.setTexture("invulnerable");
-        this.player.play("blink");
-        this.player.on('animationcomplete', () => {
+        if (died) {
+            this.player.setTexture("invulnerable");
+            this.player.play("blink");
+            this.player.on('animationcomplete', () => {
+                this.player.setTexture("player");
+                this.player.play("thrust");
+            });
+        } else {
             this.player.setTexture("player");
             this.player.play("thrust");
-        });
+        }
+
         if (typeof powerUp != "undefined") {
             powerUp.enableBody(true, 0, 0, true, true);
             if (Math.random() > 0.2) {
@@ -128,7 +134,7 @@ class Scene3 extends Phaser.Scene {
             player.setTexture("explosion");
             player.play("explode");
             player.on('animationcomplete', () => {
-                this.resetPlayer();
+                this.resetPlayer(true);
             });
             if (this.lives > 0) {
                 this["live" + this.lives].setAlpha(0.15);
@@ -138,7 +144,6 @@ class Scene3 extends Phaser.Scene {
             }
             this.resetShipPos(enemy);
         }
-        //add lives and reset points 
     };
 
     hitEnemy(projectile, enemy) {
@@ -163,7 +168,7 @@ class Scene3 extends Phaser.Scene {
 
         this.movePlayerManager();
 
-        if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
+        if (Phaser.Input.Keyboard.JustDown(this.spacebar) && (this.player.texture.key == "player" || this.player.texture.key == "invulnerable")) {
             this.shootBeam();
         }
 
