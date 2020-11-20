@@ -12,16 +12,8 @@ class Scene2 extends Phaser.Scene {
 
         this.projectiles = this.add.group();
 
-        var graphics = this.add.graphics();
-        graphics.fillStyle(0x000000, 1);
-        graphics.beginPath();
-        graphics.moveTo(0, 0);
-        graphics.lineTo(config.width, 0);
-        graphics.lineTo(config.width, 20);
-        graphics.lineTo(0, 20);
-        graphics.lineTo(0, 0);
-        graphics.closePath();
-        graphics.fillPath();
+        var graphics = this.add.renderTexture(0, 0, config.width, 20);
+        graphics.fill(0x000000);
 
         this.scoreLable = this.add.bitmapText(10, 5, "pixelFont", "SCORE: 000000", 16);
         this.livesLable = this.add.bitmapText(config.width - 100, 5, "pixelFont", "Lives: ", 16);

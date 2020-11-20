@@ -59,16 +59,8 @@ class Scene3 extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.enemies, this.hurtPlayer, null, this);
         this.physics.add.overlap(this.projectiles, this.enemies, this.hitEnemy, null, this);
 
-        var graphics = this.add.graphics();
-        graphics.fillStyle(0x000000, 1);
-        graphics.beginPath();
-        graphics.moveTo(0, 0);
-        graphics.lineTo(config.width, 0);
-        graphics.lineTo(config.width, 20);
-        graphics.lineTo(0, 20);
-        graphics.lineTo(0, 0);
-        graphics.closePath();
-        graphics.fillPath();
+        var graphics = this.add.renderTexture(0, 0, config.width, 20);
+        graphics.fill(0x000000);
         this.score = 0;
         this.lives = 3;
         this.scoreLable = this.add.bitmapText(10, 5, "pixelFont", "SCORE: 000000", 16);
@@ -168,7 +160,7 @@ class Scene3 extends Phaser.Scene {
 
         this.movePlayerManager();
 
-        if (Phaser.Input.Keyboard.JustDown(this.spacebar) && (this.player.texture.key == "player" || this.player.texture.key == "invulnerable")) {
+        if (Phaser.Input.Keyboard.JustDown(this.spacebar) && this.player.texture.key != "explosion") {
             this.shootBeam();
         }
 
